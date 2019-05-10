@@ -5,7 +5,7 @@ Here are some notes about porting linux kernel, with an example of the Midas (No
 Ok, so lets get started. I'm assuming that you already know how to compile a Linux kernel and how to work with the Git version-control system, so I won't cover it here.
 
 First of all, I'm assuming we already have some working kernel source. 
-In this example I'll start with the Midas mainline [kernel](https://github.com/fourkbomb/linux/commits/zz-old/linux-4.13) provided thanks to Simon Shields. Unfortunately, we currently lack support of some drivers like the GPU and the DRM subsystem. Of course we have a [Lima](https://gitlab.freedesktop.org/lima/mesa) driver in the kernel, but getting this to work probably deserves another article on that.
+In this example I'll start with the Midas mainline [kernel](https://github.com/fourkbomb/linux/commits/zz-old/linux-4.13) provided thanks to Simon Shields. Unfortunately, we currently lack support of some drivers like the GPU and the DRM subsystem. Of course we have a [Lima](https://gitlab.freedesktop.org/lima/mesa) driver support in the kernel, but getting this to work probably deserves another article on that.
 So, we also have some older kernels, e.g. the LineageOS kernel (Linux 3.0), mine upgrade of LineageOS kernel to Linux 3.4, [Dorimanx kernel](https://github.com/dorimanx/Dorimanx-SG2-I9100-Kernel) (partial updates upto Linux 3.14). An ultimate point is to take some drivers from these kernels and port them into the mainline.
 
 Ok, starting by now and just porting any stuff from such and old kernel version 3.4 to the mainline doesn't seem any straightforward by now.
@@ -33,13 +33,17 @@ Now you can mark good kernel revisions with `git bisect fixed` and the bad ones 
 
 So, to wrap things up, the below is step by step algorithm:
 1) Start by making another local clone of the git repository you're working. Because doing `git bisect` on repo will always reset the HEAD commit, we don't want this mess on the main kernel repo, which we actually using for compiling the stuff. So we will use this repo only for bisects:
-`cd kernel/samsung`
-`git clone midas midas1`
-`cd midas`
-`git -C ../midas1 bisect start --term-new=fixed --term-old=unfixed`
+```
+cd kernel/samsung
+git clone midas midas1
+cd midas
+git -C ../midas1 bisect start --term-new=fixed --term-old=unfixed
+```
 2) Lets assume our working revision is Linux 4.13 and we want to downgrade to Linux 4.12 (which isn't booting straight away):
-`git -C ../midas1 bisect fixed lk-4.13`
-`git -C ../midas1 bisect unfixed lk-4.12`
+```
+git -C ../midas1 bisect fixed lk-4.13
+git -C ../midas1 bisect unfixed lk-4.12
+```
 3) So we got some new git revision to test in our midas1 repo, lets make it some meaningful name. We are currently in between of Linux 4.12 and 4.13. To show our progess we want to know how far we are from Linux 4.12:
 ```
 check_count() {
